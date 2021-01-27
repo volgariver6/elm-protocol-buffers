@@ -29,7 +29,7 @@ module Protobuf.Encode exposing
 
 # Integers
 
-@docs int32, uint32, sint32, fixed32, sfixed32
+@docs int32, uint32, sint32, fixed32, sfixed32, int64, uint64
 
 
 # Floats
@@ -234,11 +234,15 @@ uint32 =
     Encoder VarInt << varInt << unsigned
 
 
+{-| Encode int64 into a message.
+-}
 int64 : Int64 -> Encoder
 int64 =
     Encoder VarInt << varInt << toInt
 
 
+{-| Encode uint64 into a message.
+-}
 uint64 : Int64 -> Encoder
 uint64 =
     Encoder VarInt << varInt << unsigned << toInt

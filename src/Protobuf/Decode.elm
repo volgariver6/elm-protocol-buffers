@@ -28,7 +28,7 @@ values.
 
 # Integers
 
-@docs int32, uint32, sint32, fixed32, sfixed32
+@docs int32, uint32, sint32, fixed32, sfixed32, int64, uint64
 
 
 # Floats
