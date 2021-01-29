@@ -1,13 +1,12 @@
 module Protobuf.Encode exposing
     ( encode, Encoder, message
-    , int32, uint32, sint32, fixed32, sfixed32
+    , int32, uint32, sint32, fixed32, sfixed32, int64, uint64, sint64, fixed64, sfixed64
     , double, float
     , string
     , bool
     , bytes
     , none
     , list, dict
-    , int64, uint64, sint64, fixed64, sfixed64
     )
 
 {-| Library for turning Elm values into
@@ -245,7 +244,7 @@ int64 =
 -}
 uint64 : Int64 -> Encoder
 uint64 =
-    Encoder VarInt << varInt << unsigned << toInt
+    Encoder VarInt << varInt << unsigned64 << toInt
 
 
 {-| Encode integers from `-2147483648` to `2147483647` into a message. Uses
@@ -293,7 +292,7 @@ into a message.
 -}
 sint64 : Int64 -> Encoder
 sint64 =
-    Encoder VarInt << varInt << (zigZag64 << Int64.toInt)
+    Encoder VarInt << varInt << (Int64.toInt << Int64.toZigZag)
 
 
 {-| Encode integers from `0` to `9,223,372,036,854,775,808` into a message. Always eight bytes.
@@ -302,7 +301,7 @@ More efficient than [`uint64`](#uint64) if values are often greater than
 -}
 fixed64 : Int64 -> Encoder
 fixed64 v =
-    Encoder Bit64 ( 8, Encode.unsignedInt64 LE v )
+    Encoder Bit64 ( 8, Int64.encoder LE v )
 
 
 {-| Encode integers from `-9,223,372,036,854,775,808` to `9,223,372,036,854,775,808` into a message.
@@ -310,7 +309,8 @@ Always four bytes.
 -}
 sfixed64 : Int64 -> Encoder
 sfixed64 v =
-    Encoder Bit64 ( 8, Encode.signedInt64 LE v )
+    Encoder Bit64 ( 8, Int64.encoder LE v )
+
 
 
 -- FLOAT
@@ -623,14 +623,18 @@ unsigned value =
         value
 
 
+unsigned64 : Int -> Int
+unsigned64 value =
+    if value >= 2 ^ 63 then
+        value - 2 ^ 64
+
+    else
+        value
+
+
 zigZag : Int -> Int
 zigZag value =
     Bitwise.xor (Bitwise.shiftRightBy 31 value) (Bitwise.shiftLeftBy 1 value)
-
-
-zigZag64 : Int -> Int
-zigZag64 value =
-    Bitwise.xor (Bitwise.shiftRightBy 63 value) (Bitwise.shiftLeftBy 1 value)
 
 
 toVarIntEncoders : Int -> List Encode.Encoder

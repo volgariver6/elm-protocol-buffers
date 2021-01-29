@@ -1,14 +1,13 @@
 module Protobuf.Decode exposing
     ( Decoder, decode, expectBytes, FieldDecoder, message
     , required, optional, repeated, mapped, oneOf
-    , int32, uint32, sint32, fixed32, sfixed32
+    , int32, uint32, sint32, fixed32, sfixed32, int64, uint64, sint64, fixed64, sfixed64
     , double, float
     , string
     , bool
     , bytes
     , map
     , lazy
-    , int64, uint64, sint64, fixed64, sfixed64
     )
 
 {-| Library for turning
@@ -477,7 +476,7 @@ int64 =
 -}
 uint64 : Decoder Int64
 uint64 =
-    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned)) varIntDecoder)
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned64)) varIntDecoder)
 
 
 {-| Decode a variable number of bytes into an integer from -9,223,372,036,854,775,808
@@ -485,14 +484,14 @@ to 9,223,372,036,854,775,808.
 -}
 sint64 : Decoder Int64
 sint64 =
-    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromInt << zigZag)) varIntDecoder)
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromZigZag << Int64.fromInt)) varIntDecoder)
 
 
 {-| Decode eight bytes into an integer from 0 to 9,223,372,036,854,775,807.
 -}
 fixed64 : Decoder Int64
 fixed64 =
-    packedDecoder Bit64 (Decode.map (Tuple.pair 8) (Decode.unsignedInt64 LE))
+    packedDecoder Bit64 (Decode.map (Tuple.pair 8) (Int64.decoder LE))
 
 
 {-| Decode eight bytes into an integer from -9,223,372,036,854,775,808 to
@@ -500,7 +499,7 @@ fixed64 =
 -}
 sfixed64 : Decoder Int64
 sfixed64 =
-    packedDecoder Bit64 (Decode.map (Tuple.pair 8) (Decode.signedInt64 LE))
+    packedDecoder Bit64 (Decode.map (Tuple.pair 8) (Int64.decoder LE))
 
 
 {-| Decode a variable number of bytes into an integer from -2147483648 to 2147483647.
@@ -864,6 +863,15 @@ unsigned : Int -> Int
 unsigned value =
     if value < 0 then
         value + 2 ^ 32
+
+    else
+        value
+
+
+unsigned64 : Int -> Int
+unsigned64 value =
+    if value < 0 then
+        value + 2 ^ 64
 
     else
         value
