@@ -469,7 +469,7 @@ to 9,223,372,036,854,775,807.
 -}
 int64 : Decoder Int64
 int64 =
-    packedDecoder Bit64 (Decode.map (Tuple.mapSecond Int64.fromInt) (Int64.decoder LE))
+    packedDecoder Bit64 (Decode.map (Tuple.pair 8) (Int64.decoder LE))
 
 
 {-| Decode a variable number of bytes into an integer from 0 to 18,446,744,073,709,551,615
