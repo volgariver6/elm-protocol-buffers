@@ -469,14 +469,14 @@ to 9,223,372,036,854,775,807.
 -}
 int64 : Decoder Int64
 int64 =
-    packedDecoder VarInt varInt64Decoder
+    packedDecoder Bit64 (Decode.map (Tuple.mapSecond Int64.fromInt) (Int64.decoder LE))
 
 
 {-| Decode a variable number of bytes into an integer from 0 to 18,446,744,073,709,551,615
 -}
 uint64 : Decoder Int64
 uint64 =
-    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned64)) varIntDecoder)
+    packedDecoder Bit64 (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned64)) (Int64.decoder LE))
 
 
 {-| Decode a variable number of bytes into an integer from -9,223,372,036,854,775,808
@@ -484,7 +484,7 @@ to 9,223,372,036,854,775,808.
 -}
 sint64 : Decoder Int64
 sint64 =
-    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromZigZag << Int64.fromInt)) varIntDecoder)
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromZigZag << Int64.fromInt)) (Int64.decoder LE))
 
 
 {-| Decode eight bytes into an integer from 0 to 9,223,372,036,854,775,807.
