@@ -469,14 +469,14 @@ to 9,223,372,036,854,775,807.
 -}
 int64 : Decoder Int64
 int64 =
-    packedDecoder VarInt varInt64Decoder
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond Int64.fromInt) varIntDecoder)
 
 
 {-| Decode a variable number of bytes into an integer from 0 to 18,446,744,073,709,551,615
 -}
 uint64 : Decoder Int64
 uint64 =
-    packedDecoder Bit64 (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned64)) (Int64.decoder LE))
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromInt << unsigned64)) varIntDecoder)
 
 
 {-| Decode a variable number of bytes into an integer from -9,223,372,036,854,775,808
@@ -484,7 +484,7 @@ to 9,223,372,036,854,775,808.
 -}
 sint64 : Decoder Int64
 sint64 =
-    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromZigZag << Int64.fromInt)) (Int64.decoder LE))
+    packedDecoder VarInt (Decode.map (Tuple.mapSecond (Int64.fromZigZag << Int64.fromInt)) varIntDecoder)
 
 
 {-| Decode eight bytes into an integer from 0 to 9,223,372,036,854,775,807.
@@ -776,7 +776,17 @@ varIntDecoder =
         |> Decode.andThen
             (\octet ->
                 if Bitwise.and 0x80 octet == 0x80 then
-                    Decode.map (\( usedBytes, value ) -> ( usedBytes + 1, Bitwise.and 0x7F octet + Bitwise.shiftLeftBy 7 value )) varIntDecoder
+                    Decode.map
+                        (\( usedBytes, value ) ->
+                            let
+                                _ =
+                                    Debug.log "varint value" (Bitwise.and 0x7F octet + Bitwise.shiftLeftBy 7 value)
+                            in
+                            ( usedBytes + 1
+                            , Bitwise.and 0x7F octet + Bitwise.shiftLeftBy 7 value
+                            )
+                        )
+                        varIntDecoder
 
                 else
                     Decode.succeed ( 1, octet )
