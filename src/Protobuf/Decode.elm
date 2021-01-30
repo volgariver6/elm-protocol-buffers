@@ -780,10 +780,10 @@ varIntDecoder =
                         (\( usedBytes, value ) ->
                             let
                                 _ =
-                                    Debug.log "varint value" (Bitwise.and 0x7F octet + Bitwise.shiftLeftBy 7 value)
+                                    Debug.log "varint value" (Bitwise.and 0x7F octet + value * 2 ^ 7)
                             in
                             ( usedBytes + 1
-                            , Bitwise.and 0x7F octet + Bitwise.shiftLeftBy 7 value
+                            , Bitwise.and 0x7F octet + value * 2 ^ 7
                             )
                         )
                         varIntDecoder
