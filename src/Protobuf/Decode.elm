@@ -778,10 +778,6 @@ varIntDecoder =
                 if Bitwise.and 0x80 octet == 0x80 then
                     Decode.map
                         (\( usedBytes, value ) ->
-                            let
-                                _ =
-                                    Debug.log "varint value" (Bitwise.and 0x7F octet + value * 2 ^ 7)
-                            in
                             ( usedBytes + 1
                             , Bitwise.and 0x7F octet + value * 2 ^ 7
                             )
