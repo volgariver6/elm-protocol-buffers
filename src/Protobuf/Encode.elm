@@ -644,7 +644,7 @@ toVarIntEncoders value =
             Bitwise.and 0x7F value
 
         higherBits =
-            value // (2 ^ 7)
+            floor <| toFloat value / (2 ^ 7)
     in
     if higherBits /= 0x00 then
         Encode.unsignedInt8 (Bitwise.or 0x80 base128) :: toVarIntEncoders higherBits
